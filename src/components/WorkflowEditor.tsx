@@ -1,0 +1,153 @@
+import { useCallback, useRef } from 'react'
+import {
+  ReactFlow,
+  Controls,
+  Background,
+  BackgroundVariant,
+  Panel,
+  useReactFlow,
+  ReactFlowProvider,
+  type NodeTypes,
+  type EdgeTypes,
+} from '@xyflow/react'
+import '@xyflow/react/dist/style.css'
+
+import { useWorkflowStore } from '@/stores'
+import type { StepType } from '@/types'
+import { ActionNode } from './nodes/ActionNode'
+import { DecisionNode } from './nodes/DecisionNode'
+import { WaitNode } from './nodes/WaitNode'
+import { SubprocessNode } from './nodes/SubprocessNode'
+import { JoinNode } from './nodes/JoinNode'
+import { TerminalNode } from './nodes/TerminalNode'
+import { StandardEdge } from './edges/StandardEdge'
+import { ParallelForkEdge } from './edges/ParallelForkEdge'
+import { DefaultEdge } from './edges/DefaultEdge'
+import { Palette } from './palette/Palette'
+import { PropertiesPanel, EdgePropertiesPanel } from './properties'
+import { Toolbar } from './toolbar/Toolbar'
+
+const nodeTypes: NodeTypes = {
+  action: ActionNode,
+  decision: DecisionNode,
+  wait: WaitNode,
+  subprocess: SubprocessNode,
+  join: JoinNode,
+  terminal: TerminalNode,
+}
+
+const edgeTypes: EdgeTypes = {
+  standard: StandardEdge,
+  parallel_fork: ParallelForkEdge,
+  default: DefaultEdge,
+}
+
+function WorkflowEditorInner() {
+  const reactFlowWrapper = useRef<HTMLDivElement>(null)
+  const { screenToFlowPosition } = useReactFlow()
+
+  const nodes = useWorkflowStore((state) => state.nodes)
+  const edges = useWorkflowStore((state) => state.edges)
+  const onNodesChange = useWorkflowStore((state) => state.onNodesChange)
+  const onEdgesChange = useWorkflowStore((state) => state.onEdgesChange)
+  const onConnect = useWorkflowStore((state) => state.onConnect)
+  const addNode = useWorkflowStore((state) => state.addNode)
+  const selectNode = useWorkflowStore((state) => state.selectNode)
+  const selectEdge = useWorkflowStore((state) => state.selectEdge)
+  const selectedNodeId = useWorkflowStore((state) => state.selectedNodeId)
+  const selectedEdgeId = useWorkflowStore((state) => state.selectedEdgeId)
+
+  const onNodeClick = useCallback(
+    (_: React.MouseEvent, node: { id: string }) => {
+      selectNode(node.id)
+    },
+    [selectNode]
+  )
+
+  const onEdgeClick = useCallback(
+    (_: React.MouseEvent, edge: { id: string }) => {
+      selectEdge(edge.id)
+    },
+    [selectEdge]
+  )
+
+  const onPaneClick = useCallback(() => {
+    selectNode(null)
+    selectEdge(null)
+  }, [selectNode, selectEdge])
+
+  const onDragOver = useCallback((event: React.DragEvent) => {
+    event.preventDefault()
+    event.dataTransfer.dropEffect = 'move'
+  }, [])
+
+  const onDrop = useCallback(
+    (event: React.DragEvent) => {
+      event.preventDefault()
+
+      const type = event.dataTransfer.getData('application/reactflow/type') as StepType
+      if (!type) {
+        return
+      }
+
+      const commandTypeId = event.dataTransfer.getData('application/reactflow/commandTypeId') || undefined
+
+      const position = screenToFlowPosition({
+        x: event.clientX,
+        y: event.clientY,
+      })
+
+      addNode(type, position, commandTypeId)
+    },
+    [screenToFlowPosition, addNode]
+  )
+
+  return (
+    <div className="flex h-full w-full">
+      {/* Left Palette */}
+      <Palette />
+
+      {/* Main Canvas */}
+      <div className="flex-1 relative" ref={reactFlowWrapper}>
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
+          onNodeClick={onNodeClick}
+          onEdgeClick={onEdgeClick}
+          onPaneClick={onPaneClick}
+          onDragOver={onDragOver}
+          onDrop={onDrop}
+          nodeTypes={nodeTypes}
+          edgeTypes={edgeTypes}
+          fitView
+          snapToGrid
+          snapGrid={[15, 15]}
+          defaultEdgeOptions={{
+            type: 'standard',
+          }}
+        >
+          <Panel position="top-center">
+            <Toolbar />
+          </Panel>
+          <Controls />
+          <Background variant={BackgroundVariant.Dots} gap={15} size={1} />
+        </ReactFlow>
+      </div>
+
+      {/* Right Properties Panel */}
+      {selectedNodeId && <PropertiesPanel />}
+      {selectedEdgeId && <EdgePropertiesPanel />}
+    </div>
+  )
+}
+
+export function WorkflowEditor() {
+  return (
+    <ReactFlowProvider>
+      <WorkflowEditorInner />
+    </ReactFlowProvider>
+  )
+}
