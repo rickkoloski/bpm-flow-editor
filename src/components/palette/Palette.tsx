@@ -10,9 +10,9 @@ import {
   Flag,
   Search,
 } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { useWorkflowStore } from '@/stores'
-import type { StepType, CommandType } from '@/types'
+import { cn } from '@wf/lib/utils'
+import { useWorkflowStore } from '@wf/stores'
+import type { StepType, CommandType } from '@wf/types'
 
 interface PaletteItem {
   type: StepType
@@ -125,12 +125,13 @@ const stepTypes: PaletteItem[] = [
 ]
 
 export function Palette() {
-  const [collapsed, setCollapsed] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [paletteWidth, setPaletteWidth] = useState(SNAP_POINTS.ONE_COLUMN)
   const [isDragging, setIsDragging] = useState(false)
   const paletteRef = useRef<HTMLDivElement>(null)
   const commandTypes = useWorkflowStore((state) => state.commandTypes)
+  const collapsed = useWorkflowStore((state) => state.paletteCollapsed)
+  const setCollapsed = useWorkflowStore((state) => state.setPaletteCollapsed)
 
   const columnCount = getColumnCount(paletteWidth)
 
@@ -247,8 +248,8 @@ export function Palette() {
       className="bg-muted flex flex-col relative"
       style={{ width: paletteWidth }}
     >
-      {/* Header */}
-      <div className="flex items-center justify-between p-3 border-b">
+      {/* Header - h-14 matches main header */}
+      <div className="h-14 flex items-center justify-between px-3 border-b flex-shrink-0">
         <span className="font-semibold text-sm">Components</span>
         <button
           onClick={() => setCollapsed(true)}

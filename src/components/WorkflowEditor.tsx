@@ -12,8 +12,8 @@ import {
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 
-import { useWorkflowStore } from '@/stores'
-import type { StepType } from '@/types'
+import { useWorkflowStore } from '@wf/stores'
+import type { StepType } from '@wf/types'
 import { ActionNode } from './nodes/ActionNode'
 import { DecisionNode } from './nodes/DecisionNode'
 import { WaitNode } from './nodes/WaitNode'
@@ -23,9 +23,15 @@ import { TerminalNode } from './nodes/TerminalNode'
 import { StandardEdge } from './edges/StandardEdge'
 import { ParallelForkEdge } from './edges/ParallelForkEdge'
 import { DefaultEdge } from './edges/DefaultEdge'
+import { ConditionalEdge } from './edges/ConditionalEdge'
 import { Palette } from './palette/Palette'
 import { PropertiesPanel, EdgePropertiesPanel } from './properties'
 import { Toolbar } from './toolbar/Toolbar'
+
+export interface WorkflowEditorProps {
+  /** Hide the built-in properties panel (for external management) */
+  hidePropertiesPanel?: boolean
+}
 
 const nodeTypes: NodeTypes = {
   action: ActionNode,
@@ -40,9 +46,10 @@ const edgeTypes: EdgeTypes = {
   standard: StandardEdge,
   parallel_fork: ParallelForkEdge,
   default: DefaultEdge,
+  conditional: ConditionalEdge,
 }
 
-function WorkflowEditorInner() {
+function WorkflowEditorInner({ hidePropertiesPanel = false }: WorkflowEditorProps) {
   const reactFlowWrapper = useRef<HTMLDivElement>(null)
   const { screenToFlowPosition } = useReactFlow()
 
@@ -137,17 +144,17 @@ function WorkflowEditorInner() {
         </ReactFlow>
       </div>
 
-      {/* Right Properties Panel */}
-      {selectedNodeId && <PropertiesPanel />}
-      {selectedEdgeId && <EdgePropertiesPanel />}
+      {/* Right Properties Panel (conditionally rendered) */}
+      {!hidePropertiesPanel && selectedNodeId && <PropertiesPanel />}
+      {!hidePropertiesPanel && selectedEdgeId && <EdgePropertiesPanel />}
     </div>
   )
 }
 
-export function WorkflowEditor() {
+export function WorkflowEditor({ hidePropertiesPanel }: WorkflowEditorProps = {}) {
   return (
     <ReactFlowProvider>
-      <WorkflowEditorInner />
+      <WorkflowEditorInner hidePropertiesPanel={hidePropertiesPanel} />
     </ReactFlowProvider>
   )
 }

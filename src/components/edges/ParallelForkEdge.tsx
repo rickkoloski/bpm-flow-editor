@@ -6,7 +6,7 @@ import {
   type EdgeProps,
 } from '@xyflow/react'
 import { GitFork } from 'lucide-react'
-import type { WorkflowEdge } from '@/types'
+import type { WorkflowEdge } from '@wf/types'
 
 function ParallelForkEdgeComponent({
   id,

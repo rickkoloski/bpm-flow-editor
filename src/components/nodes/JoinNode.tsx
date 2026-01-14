@@ -1,7 +1,7 @@
 import { memo } from 'react'
 import { Handle, Position, type NodeProps } from '@xyflow/react'
 import { Merge } from 'lucide-react'
-import type { WorkflowNode, ExecutionState } from '@/types'
+import type { WorkflowNode, ExecutionState } from '@wf/types'
 
 // SVG color mappings for execution states
 const executionStateColors: Record<ExecutionState, { stroke: string; fill: string }> = {

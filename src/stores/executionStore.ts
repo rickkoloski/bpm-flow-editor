@@ -6,7 +6,7 @@ import type {
   Token,
   StepResult,
   EditorMode,
-} from '@/types'
+} from '@wf/types'
 
 interface ExecutionStoreState {
   // Current execution context

@@ -20,7 +20,7 @@ import type {
   StepType,
   TransitionType,
   EdgePathType,
-} from '@/types'
+} from '@wf/types'
 
 interface WorkflowState {
   // Current plan
@@ -39,6 +39,9 @@ interface WorkflowState {
 
   // Default edge path type preference
   defaultEdgePathType: EdgePathType
+
+  // UI state
+  paletteCollapsed: boolean
 
   // History for undo/redo
   history: { nodes: WorkflowNode[]; edges: WorkflowEdge[] }[]
@@ -71,6 +74,9 @@ interface WorkflowState {
   // Edge preferences
   setDefaultEdgePathType: (pathType: EdgePathType) => void
 
+  // UI state
+  setPaletteCollapsed: (collapsed: boolean) => void
+
   // History
   undo: () => void
   redo: () => void
@@ -96,6 +102,7 @@ export const useWorkflowStore = create<WorkflowState>()(
         selectedEdgeId: null,
         commandTypes: [],
         defaultEdgePathType: 'bezier',
+        paletteCollapsed: false,
         history: [],
         historyIndex: -1,
 
@@ -255,6 +262,8 @@ export const useWorkflowStore = create<WorkflowState>()(
         setCommandTypes: (types) => set({ commandTypes: types }),
 
         setDefaultEdgePathType: (pathType) => set({ defaultEdgePathType: pathType }),
+
+        setPaletteCollapsed: (collapsed) => set({ paletteCollapsed: collapsed }),
 
         undo: () => {
           const { history, historyIndex } = get()

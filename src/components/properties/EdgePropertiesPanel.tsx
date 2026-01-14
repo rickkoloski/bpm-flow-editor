@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { X, ChevronDown, ChevronRight } from 'lucide-react'
-import { useWorkflowStore } from '@/stores'
-import type { EdgePathType } from '@/types'
+import { useWorkflowStore } from '@wf/stores'
+import type { EdgePathType } from '@wf/types'
 
 export function EdgePropertiesPanel() {
   const selectedEdge = useWorkflowStore((state) => state.getSelectedEdge())

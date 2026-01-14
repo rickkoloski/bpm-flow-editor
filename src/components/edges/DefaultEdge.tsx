@@ -5,7 +5,7 @@ import {
   getBezierPath,
   type EdgeProps,
 } from '@xyflow/react'
-import type { WorkflowEdge } from '@/types'
+import type { WorkflowEdge } from '@wf/types'
 
 function DefaultEdgeComponent({
   id,

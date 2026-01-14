@@ -1,7 +1,7 @@
 import { memo, type ReactNode } from 'react'
 import { Handle, Position, type NodeProps } from '@xyflow/react'
-import { cn } from '@/lib/utils'
-import type { WorkflowNode, ExecutionState } from '@/types'
+import { cn } from '@wf/lib/utils'
+import type { WorkflowNode, ExecutionState } from '@wf/types'
 
 interface BaseNodeProps extends NodeProps<WorkflowNode> {
   children: ReactNode

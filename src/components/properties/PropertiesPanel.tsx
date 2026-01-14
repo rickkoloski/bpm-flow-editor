@@ -1,12 +1,11 @@
 import { useState } from 'react'
-import { X, ChevronDown, ChevronRight } from 'lucide-react'
-import { useWorkflowStore } from '@/stores'
-import type { ParameterSchema } from '@/types'
+import { ChevronDown, ChevronRight } from 'lucide-react'
+import { useWorkflowStore } from '@wf/stores'
+import type { ParameterSchema } from '@wf/types'
 
 export function PropertiesPanel() {
   const selectedNode = useWorkflowStore((state) => state.getSelectedNode())
   const updateNode = useWorkflowStore((state) => state.updateNode)
-  const selectNode = useWorkflowStore((state) => state.selectNode)
   const [expandedSections, setExpandedSections] = useState<Set<string>>(
     new Set(['basic', 'parameters'])
   )
@@ -157,19 +156,7 @@ export function PropertiesPanel() {
   }
 
   return (
-    <div className="w-72 bg-muted border-l flex flex-col">
-      {/* Header */}
-      <div className="flex items-center justify-between p-3 border-b">
-        <span className="font-semibold text-sm">Properties</span>
-        <button
-          onClick={() => selectNode(null)}
-          className="p-1 hover:bg-accent rounded"
-          aria-label="Close properties"
-        >
-          <X className="w-4 h-4" />
-        </button>
-      </div>
-
+    <div className="flex-1 flex flex-col overflow-hidden">
       {/* Scrollable content */}
       <div className="flex-1 overflow-y-auto">
         {/* Basic Info Section */}

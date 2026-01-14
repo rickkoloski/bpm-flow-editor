@@ -9,7 +9,13 @@ import {
 import type { WorkflowEdge } from '@wf/types'
 import { useWorkflowStore } from '@wf/stores'
 
-function StandardEdgeComponent({
+/**
+ * Conditional edge component (D40).
+ *
+ * Renders a dashed edge for conditional transitions,
+ * with the condition name displayed as a label.
+ */
+function ConditionalEdgeComponent({
   id,
   sourceX,
   sourceY,
@@ -38,7 +44,7 @@ function StandardEdgeComponent({
     ? getSmoothStepPath(pathParams)
     : getBezierPath(pathParams)
 
-  // Display custom label if present, otherwise show condition name
+  // Display condition name for conditional edges
   const displayLabel = data?.label || data?.condition?.name
 
   return (
@@ -48,8 +54,9 @@ function StandardEdgeComponent({
         path={edgePath}
         markerEnd={markerEnd}
         style={{
-          stroke: selected ? 'hsl(var(--primary))' : 'hsl(var(--border))',
+          stroke: selected ? 'hsl(var(--primary))' : '#6366f1', // Indigo for conditional
           strokeWidth: selected ? 2 : 1.5,
+          strokeDasharray: '5,3', // Dashed line for conditional edges
         }}
       />
       {displayLabel && (
@@ -60,7 +67,7 @@ function StandardEdgeComponent({
               transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
               pointerEvents: 'all',
             }}
-            className="bg-white border border-border rounded px-2 py-0.5 text-xs shadow-sm"
+            className="bg-indigo-50 border border-indigo-200 rounded px-2 py-0.5 text-xs shadow-sm text-indigo-700"
           >
             {displayLabel}
           </div>
@@ -70,4 +77,4 @@ function StandardEdgeComponent({
   )
 }
 
-export const StandardEdge = memo(StandardEdgeComponent)
+export const ConditionalEdge = memo(ConditionalEdgeComponent)
