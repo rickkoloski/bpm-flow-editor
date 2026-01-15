@@ -48,8 +48,8 @@ function StandardEdgeComponent({
         path={edgePath}
         markerEnd={markerEnd}
         style={{
-          stroke: selected ? 'hsl(var(--primary))' : 'hsl(var(--border))',
-          strokeWidth: selected ? 2 : 1.5,
+          stroke: selected ? '#ef4444' : '#6b7280', // gray-500
+          strokeWidth: selected ? 2.5 : 2,
         }}
       />
       {displayLabel && (

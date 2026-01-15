@@ -54,8 +54,8 @@ function ConditionalEdgeComponent({
         path={edgePath}
         markerEnd={markerEnd}
         style={{
-          stroke: selected ? 'hsl(var(--primary))' : '#6366f1', // Indigo for conditional
-          strokeWidth: selected ? 2 : 1.5,
+          stroke: selected ? '#ef4444' : '#6366f1', // Indigo for conditional, red when selected
+          strokeWidth: selected ? 2.5 : 2,
           strokeDasharray: '5,3', // Dashed line for conditional edges
         }}
       />

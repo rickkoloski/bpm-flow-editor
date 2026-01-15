@@ -31,6 +31,8 @@ import { Toolbar } from './toolbar/Toolbar'
 export interface WorkflowEditorProps {
   /** Hide the built-in properties panel (for external management) */
   hidePropertiesPanel?: boolean
+  /** Hide the left palette (for external management, e.g., in right panel tabs) */
+  hidePalette?: boolean
 }
 
 const nodeTypes: NodeTypes = {
@@ -49,7 +51,7 @@ const edgeTypes: EdgeTypes = {
   conditional: ConditionalEdge,
 }
 
-function WorkflowEditorInner({ hidePropertiesPanel = false }: WorkflowEditorProps) {
+function WorkflowEditorInner({ hidePropertiesPanel = false, hidePalette = false }: WorkflowEditorProps) {
   const reactFlowWrapper = useRef<HTMLDivElement>(null)
   const { screenToFlowPosition } = useReactFlow()
 
@@ -112,7 +114,7 @@ function WorkflowEditorInner({ hidePropertiesPanel = false }: WorkflowEditorProp
   return (
     <div className="flex h-full w-full">
       {/* Left Palette */}
-      <Palette />
+      {!hidePalette && <Palette />}
 
       {/* Main Canvas */}
       <div className="flex-1 relative" ref={reactFlowWrapper}>
@@ -151,10 +153,10 @@ function WorkflowEditorInner({ hidePropertiesPanel = false }: WorkflowEditorProp
   )
 }
 
-export function WorkflowEditor({ hidePropertiesPanel }: WorkflowEditorProps = {}) {
+export function WorkflowEditor({ hidePropertiesPanel, hidePalette }: WorkflowEditorProps = {}) {
   return (
     <ReactFlowProvider>
-      <WorkflowEditorInner hidePropertiesPanel={hidePropertiesPanel} />
+      <WorkflowEditorInner hidePropertiesPanel={hidePropertiesPanel} hidePalette={hidePalette} />
     </ReactFlowProvider>
   )
 }

@@ -13,6 +13,7 @@
 export { WorkflowEditor } from '@wf/components/WorkflowEditor'
 export { PropertiesPanel } from '@wf/components/properties/PropertiesPanel'
 export { EdgePropertiesPanel } from '@wf/components/properties/EdgePropertiesPanel'
+export { PaletteContent, type PaletteContentProps } from '@wf/components/palette'
 
 // === Stores ===
 export { useWorkflowStore } from '@wf/stores/workflowStore'

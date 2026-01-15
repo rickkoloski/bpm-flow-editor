@@ -35,7 +35,7 @@ function ParallelForkEdgeComponent({
         path={edgePath}
         markerEnd={markerEnd}
         style={{
-          stroke: selected ? 'hsl(var(--primary))' : '#6366f1', // indigo
+          stroke: selected ? '#ef4444' : '#6366f1', // indigo, red when selected
           strokeWidth: selected ? 2.5 : 2,
         }}
       />
