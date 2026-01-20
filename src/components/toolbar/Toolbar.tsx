@@ -8,6 +8,12 @@ import {
   Redo,
   Trash2,
   GripVertical,
+  AlignVerticalJustifyCenter,
+  AlignHorizontalJustifyCenter,
+  Save,
+  Loader2,
+  Hand,
+  MousePointer2,
 } from 'lucide-react'
 import { cn } from '@wf/lib/utils'
 import { useWorkflowStore } from '@wf/stores'
@@ -66,6 +72,13 @@ export function Toolbar() {
   const selectedEdgeId = useWorkflowStore((state) => state.selectedEdgeId)
   const deleteNode = useWorkflowStore((state) => state.deleteNode)
   const deleteEdge = useWorkflowStore((state) => state.deleteEdge)
+  const nodes = useWorkflowStore((state) => state.nodes)
+  const alignNodesVertical = useWorkflowStore((state) => state.alignNodesVertical)
+  const alignNodesHorizontal = useWorkflowStore((state) => state.alignNodesHorizontal)
+  const savePlan = useWorkflowStore((state) => state.savePlan)
+  const isSaving = useWorkflowStore((state) => state.isSaving)
+  const interactionMode = useWorkflowStore((state) => state.interactionMode)
+  const setInteractionMode = useWorkflowStore((state) => state.setInteractionMode)
 
   // Drag state - load initial position from localStorage
   const STORAGE_KEY = 'workflow-toolbar-position'
@@ -97,6 +110,23 @@ export function Toolbar() {
   const canUndo = historyIndex > 0
   const canRedo = historyIndex < history.length - 1
   const canDelete = selectedNodeId !== null || selectedEdgeId !== null
+  const selectedCount = nodes.filter((n) => n.selected).length
+  const canAlign = selectedCount >= 2
+
+  // Save status state
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle')
+
+  const handleSave = useCallback(async () => {
+    const result = await savePlan()
+
+    if (result.success) {
+      setSaveStatus('success')
+      setTimeout(() => setSaveStatus('idle'), 2000)
+    } else {
+      setSaveStatus('error')
+      setTimeout(() => setSaveStatus('idle'), 3000)
+    }
+  }, [savePlan])
 
   const handleDelete = useCallback(() => {
     if (selectedNodeId) {
@@ -148,6 +178,36 @@ export function Toolbar() {
         <GripVertical className="w-4 h-4" />
       </div>
 
+      {/* Interaction mode toggle */}
+      <div className="flex items-center bg-muted rounded-md p-0.5">
+        <button
+          onClick={() => setInteractionMode('pan')}
+          className={cn(
+            'p-1.5 rounded transition-colors',
+            interactionMode === 'pan'
+              ? 'bg-background shadow-sm text-foreground'
+              : 'text-muted-foreground hover:text-foreground'
+          )}
+          title="Pan mode (drag to pan)"
+        >
+          <Hand className="w-4 h-4" />
+        </button>
+        <button
+          onClick={() => setInteractionMode('select')}
+          className={cn(
+            'p-1.5 rounded transition-colors',
+            interactionMode === 'select'
+              ? 'bg-background shadow-sm text-foreground'
+              : 'text-muted-foreground hover:text-foreground'
+          )}
+          title="Select mode (drag to select)"
+        >
+          <MousePointer2 className="w-4 h-4" />
+        </button>
+      </div>
+
+      <ToolbarDivider />
+
       {/* Zoom controls */}
       <ToolbarButton onClick={() => zoomOut()} title="Zoom Out">
         <ZoomOut className="w-4 h-4" />
@@ -175,6 +235,54 @@ export function Toolbar() {
       <ToolbarButton onClick={handleDelete} disabled={!canDelete} title="Delete Selected">
         <Trash2 className="w-4 h-4" />
       </ToolbarButton>
+
+      <ToolbarDivider />
+
+      {/* Alignment */}
+      <ToolbarButton onClick={alignNodesVertical} disabled={!canAlign} title="Align Vertical Center">
+        <AlignVerticalJustifyCenter className="w-4 h-4" />
+      </ToolbarButton>
+      <ToolbarButton onClick={alignNodesHorizontal} disabled={!canAlign} title="Align Horizontal Center">
+        <AlignHorizontalJustifyCenter className="w-4 h-4" />
+      </ToolbarButton>
+
+      <ToolbarDivider />
+
+      {/* Save */}
+      <button
+        onClick={handleSave}
+        disabled={isSaving}
+        title={saveStatus === 'error' ? 'Save failed' : 'Save workflow'}
+        className={cn(
+          'flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors',
+          isSaving && 'bg-muted text-muted-foreground cursor-wait',
+          saveStatus === 'success' && 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
+          saveStatus === 'error' && 'bg-destructive/10 text-destructive',
+          saveStatus === 'idle' && !isSaving && 'bg-primary text-primary-foreground hover:bg-primary/90'
+        )}
+      >
+        {isSaving ? (
+          <>
+            <Loader2 className="w-4 h-4 animate-spin" />
+            Saving...
+          </>
+        ) : saveStatus === 'success' ? (
+          <>
+            <Save className="w-4 h-4" />
+            Saved
+          </>
+        ) : saveStatus === 'error' ? (
+          <>
+            <Save className="w-4 h-4" />
+            Failed
+          </>
+        ) : (
+          <>
+            <Save className="w-4 h-4" />
+            Save
+          </>
+        )}
+      </button>
     </div>
   )
 }

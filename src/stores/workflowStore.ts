@@ -42,6 +42,7 @@ interface WorkflowState {
 
   // UI state
   paletteCollapsed: boolean
+  interactionMode: 'pan' | 'select'
 
   // History for undo/redo
   history: { nodes: WorkflowNode[]; edges: WorkflowEdge[] }[]
@@ -76,11 +77,22 @@ interface WorkflowState {
 
   // UI state
   setPaletteCollapsed: (collapsed: boolean) => void
+  setInteractionMode: (mode: 'pan' | 'select') => void
 
   // History
   undo: () => void
   redo: () => void
   pushHistory: () => void
+
+  // Alignment
+  alignNodesVertical: () => void
+  alignNodesHorizontal: () => void
+
+  // Save
+  isSaving: boolean
+  saveError: string | null
+  lastSaved: Date | null
+  savePlan: () => Promise<{ success: boolean; error?: string }>
 
   // Utilities
   getSelectedNode: () => WorkflowNode | undefined
@@ -103,8 +115,12 @@ export const useWorkflowStore = create<WorkflowState>()(
         commandTypes: [],
         defaultEdgePathType: 'bezier',
         paletteCollapsed: false,
+        interactionMode: 'pan',
         history: [],
         historyIndex: -1,
+        isSaving: false,
+        saveError: null,
+        lastSaved: null,
 
         setPlan: (plan) => {
           const nodes: WorkflowNode[] = plan.steps.map((step) => ({
@@ -265,6 +281,8 @@ export const useWorkflowStore = create<WorkflowState>()(
 
         setPaletteCollapsed: (collapsed) => set({ paletteCollapsed: collapsed }),
 
+        setInteractionMode: (mode) => set({ interactionMode: mode }),
+
         undo: () => {
           const { history, historyIndex } = get()
           if (historyIndex > 0) {
@@ -301,6 +319,101 @@ export const useWorkflowStore = create<WorkflowState>()(
             history: newHistory,
             historyIndex: newHistory.length - 1,
           })
+        },
+
+        alignNodesVertical: () => {
+          const { nodes } = get()
+          const selectedNodes = nodes.filter((n) => n.selected)
+
+          if (selectedNodes.length < 2) return
+
+          // Helper to get node width (React Flow stores measured dimensions in node.measured)
+          const getWidth = (n: WorkflowNode) => n.measured?.width ?? n.width ?? 180
+
+          // Calculate center X of selection bounds
+          const minX = Math.min(...selectedNodes.map((n) => n.position.x))
+          const maxX = Math.max(...selectedNodes.map((n) => n.position.x + getWidth(n)))
+          const centerX = (minX + maxX) / 2
+
+          // Update positions
+          get().pushHistory()
+          set({
+            nodes: nodes.map((node) => {
+              if (!node.selected) return node
+              const nodeWidth = getWidth(node)
+              return {
+                ...node,
+                position: {
+                  ...node.position,
+                  x: centerX - nodeWidth / 2,
+                },
+              }
+            }),
+          })
+        },
+
+        alignNodesHorizontal: () => {
+          const { nodes } = get()
+          const selectedNodes = nodes.filter((n) => n.selected)
+
+          if (selectedNodes.length < 2) return
+
+          // Helper to get node height (React Flow stores measured dimensions in node.measured)
+          const getHeight = (n: WorkflowNode) => n.measured?.height ?? n.height ?? 56
+
+          // Calculate center Y of selection bounds
+          const minY = Math.min(...selectedNodes.map((n) => n.position.y))
+          const maxY = Math.max(...selectedNodes.map((n) => n.position.y + getHeight(n)))
+          const centerY = (minY + maxY) / 2
+
+          // Update positions
+          get().pushHistory()
+          set({
+            nodes: nodes.map((node) => {
+              if (!node.selected) return node
+              const nodeHeight = getHeight(node)
+              return {
+                ...node,
+                position: {
+                  ...node.position,
+                  y: centerY - nodeHeight / 2,
+                },
+              }
+            }),
+          })
+        },
+
+        savePlan: async () => {
+          const { plan, nodes } = get()
+          if (!plan?.id) return { success: false, error: 'No plan loaded' }
+
+          set({ isSaving: true, saveError: null })
+
+          try {
+            const steps = nodes.map((node) => ({
+              id: node.data.step.id,
+              position: node.position,
+            }))
+
+            const response = await fetch(`http://localhost:4000/api/workflow/plans/${plan.id}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              credentials: 'include',
+              body: JSON.stringify({ steps }),
+            })
+
+            if (!response.ok) {
+              const error = await response.json().catch(() => ({}))
+              throw new Error(error.error || `Save failed: ${response.status}`)
+            }
+
+            set({ isSaving: false, lastSaved: new Date() })
+            return { success: true }
+          } catch (error) {
+            const message = error instanceof Error ? error.message : 'Save failed'
+            set({ isSaving: false, saveError: message })
+            return { success: false, error: message }
+          }
         },
 
         getSelectedNode: () => {
@@ -350,6 +463,7 @@ export const useWorkflowStore = create<WorkflowState>()(
           nodes: state.nodes,
           edges: state.edges,
           defaultEdgePathType: state.defaultEdgePathType,
+          interactionMode: state.interactionMode,
         }),
       }
     )
