@@ -42,7 +42,6 @@ interface WorkflowState {
 
   // UI state
   paletteCollapsed: boolean
-  interactionMode: 'pan' | 'select'
 
   // History for undo/redo
   history: { nodes: WorkflowNode[]; edges: WorkflowEdge[] }[]
@@ -77,7 +76,6 @@ interface WorkflowState {
 
   // UI state
   setPaletteCollapsed: (collapsed: boolean) => void
-  setInteractionMode: (mode: 'pan' | 'select') => void
 
   // History
   undo: () => void
@@ -115,7 +113,6 @@ export const useWorkflowStore = create<WorkflowState>()(
         commandTypes: [],
         defaultEdgePathType: 'bezier',
         paletteCollapsed: false,
-        interactionMode: 'pan',
         history: [],
         historyIndex: -1,
         isSaving: false,
@@ -280,8 +277,6 @@ export const useWorkflowStore = create<WorkflowState>()(
         setDefaultEdgePathType: (pathType) => set({ defaultEdgePathType: pathType }),
 
         setPaletteCollapsed: (collapsed) => set({ paletteCollapsed: collapsed }),
-
-        setInteractionMode: (mode) => set({ interactionMode: mode }),
 
         undo: () => {
           const { history, historyIndex } = get()
@@ -463,7 +458,6 @@ export const useWorkflowStore = create<WorkflowState>()(
           nodes: state.nodes,
           edges: state.edges,
           defaultEdgePathType: state.defaultEdgePathType,
-          interactionMode: state.interactionMode,
         }),
       }
     )

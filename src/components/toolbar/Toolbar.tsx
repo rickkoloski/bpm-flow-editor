@@ -12,8 +12,6 @@ import {
   AlignHorizontalJustifyCenter,
   Save,
   Loader2,
-  Hand,
-  MousePointer2,
 } from 'lucide-react'
 import { cn } from '@wf/lib/utils'
 import { useWorkflowStore } from '@wf/stores'
@@ -77,8 +75,6 @@ export function Toolbar() {
   const alignNodesHorizontal = useWorkflowStore((state) => state.alignNodesHorizontal)
   const savePlan = useWorkflowStore((state) => state.savePlan)
   const isSaving = useWorkflowStore((state) => state.isSaving)
-  const interactionMode = useWorkflowStore((state) => state.interactionMode)
-  const setInteractionMode = useWorkflowStore((state) => state.setInteractionMode)
 
   // Drag state - load initial position from localStorage
   const STORAGE_KEY = 'workflow-toolbar-position'
@@ -177,36 +173,6 @@ export function Toolbar() {
       >
         <GripVertical className="w-4 h-4" />
       </div>
-
-      {/* Interaction mode toggle */}
-      <div className="flex items-center bg-muted rounded-md p-0.5">
-        <button
-          onClick={() => setInteractionMode('pan')}
-          className={cn(
-            'p-1.5 rounded transition-colors',
-            interactionMode === 'pan'
-              ? 'bg-background shadow-sm text-foreground'
-              : 'text-muted-foreground hover:text-foreground'
-          )}
-          title="Pan mode (drag to pan)"
-        >
-          <Hand className="w-4 h-4" />
-        </button>
-        <button
-          onClick={() => setInteractionMode('select')}
-          className={cn(
-            'p-1.5 rounded transition-colors',
-            interactionMode === 'select'
-              ? 'bg-background shadow-sm text-foreground'
-              : 'text-muted-foreground hover:text-foreground'
-          )}
-          title="Select mode (drag to select)"
-        >
-          <MousePointer2 className="w-4 h-4" />
-        </button>
-      </div>
-
-      <ToolbarDivider />
 
       {/* Zoom controls */}
       <ToolbarButton onClick={() => zoomOut()} title="Zoom Out">

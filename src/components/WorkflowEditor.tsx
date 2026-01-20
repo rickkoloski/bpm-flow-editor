@@ -65,7 +65,6 @@ function WorkflowEditorInner({ hidePropertiesPanel = false, hidePalette = false 
   const selectEdge = useWorkflowStore((state) => state.selectEdge)
   const selectedNodeId = useWorkflowStore((state) => state.selectedNodeId)
   const selectedEdgeId = useWorkflowStore((state) => state.selectedEdgeId)
-  const interactionMode = useWorkflowStore((state) => state.interactionMode)
 
   const onNodeClick = useCallback(
     (event: React.MouseEvent, node: { id: string }) => {
@@ -143,8 +142,8 @@ function WorkflowEditorInner({ hidePropertiesPanel = false, hidePalette = false 
           fitView
           snapToGrid
           snapGrid={[15, 15]}
-          panOnDrag={interactionMode === 'pan'}
-          selectionOnDrag={interactionMode === 'select'}
+          selectionKeyCode="Alt"
+          multiSelectionKeyCode="Shift"
           defaultEdgeOptions={{
             type: 'standard',
           }}
