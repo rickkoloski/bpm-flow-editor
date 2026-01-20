@@ -8,8 +8,8 @@ import {
   Redo,
   Trash2,
   GripVertical,
-  AlignVerticalJustifyCenter,
-  AlignHorizontalJustifyCenter,
+  AlignCenterVertical,
+  AlignCenterHorizontal,
   Save,
   Loader2,
 } from 'lucide-react'
@@ -206,10 +206,10 @@ export function Toolbar() {
 
       {/* Alignment */}
       <ToolbarButton onClick={alignNodesVertical} disabled={!canAlign} title="Align Vertical Center">
-        <AlignVerticalJustifyCenter className="w-4 h-4" />
+        <AlignCenterVertical className="w-4 h-4" />
       </ToolbarButton>
       <ToolbarButton onClick={alignNodesHorizontal} disabled={!canAlign} title="Align Horizontal Center">
-        <AlignHorizontalJustifyCenter className="w-4 h-4" />
+        <AlignCenterHorizontal className="w-4 h-4" />
       </ToolbarButton>
 
       <ToolbarDivider />
